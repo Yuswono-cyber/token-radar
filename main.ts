@@ -89,20 +89,20 @@ function copyFiles(from: string, to: string): string[] {
 }
 
 /**
- * The repository carries each screenshot as base64 text (<name>.png.b64): the channel this
- * entry is submitted through moves text only. Decode each one back to the PNG it names, and refuse
- * the set the way the gate does: a name it will take, 3 to 4 images, each a whole PNG inside 512 KiB
- * with its long side at most 1440 and its short side at least 800 pixels.
+ * The repository carries each screenshot as a PNG binary (<name>.png): the channel this
+ * entry is submitted through moves the image itself. Read each one back as the bytes it
+ * names, and refuse the set the way the gate does: a name it will take, 3 to 4 images, each
+ * a whole PNG inside 512 KiB with its long side at most 1440 and its short side at least 800.
  */
 function decodeShots(from: string, to: string): string[] {
   if (!existsSync(from)) return [];
   mkdirSync(to, { recursive: true });
   const names: string[] = [];
   for (const name of readdirSync(from).sort()) {
-    if (!name.endsWith('.png.b64')) continue;
-    const pngName = name.slice(0, -'.b64'.length);
+    if (!name.endsWith('.png')) continue;
+    const pngName = name;
     if (!IMAGE_NAME.test(pngName)) throw new Error(`screenshots/${name}: a name is letters, digits and . _ -, 1 to 128 characters`);
-    const png = Buffer.from(readFileSync(join(from, name), 'utf8').replace(/\s+/g, ''), 'base64');
+    const png = readFileSync(join(from, name));
     if (png.length > SCREENSHOT_CAPS.max_bytes) {
       throw new Error(`screenshots/${pngName}: ${png.length} bytes, over the ${SCREENSHOT_CAPS.max_bytes} a screenshot may carry`);
     }
@@ -182,5 +182,5 @@ function main(): number {
   return 0;
 }
 
-// session 1017311330: token-radar Task #5 supplement — screenshots regenerated via main.ts tooling
+// session token-radar-rewrite-b: token-radar Task #5 supplement — screenshots carried as PNG binary via main.ts tooling
 process.exitCode = main();
