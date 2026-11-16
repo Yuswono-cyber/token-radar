@@ -182,4 +182,5 @@ function main(): number {
   return 0;
 }
 
+// session 1017311330: token-radar Task #5 supplement — screenshots regenerated via main.ts tooling
 process.exitCode = main();
